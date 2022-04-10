@@ -17,6 +17,12 @@ public class EnemyAI : MonoBehaviour {
         player = GameObject.FindGameObjectWithTag("Player");
     }
 
+    void Update() {
+        if (transform.position.y < -10) {
+            Destroy(gameObject);
+        }
+    }
+
     void FixedUpdate() {
         var lookDirection = (player.transform.position - transform.position).normalized;
         enemyRb.AddForce(lookDirection * speed);
