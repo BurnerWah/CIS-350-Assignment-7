@@ -9,7 +9,7 @@ using UnityEngine;
 
 public class PlayerControllerX : MonoBehaviour {
     private Rigidbody playerRb;
-    private float speed = 500;
+    private readonly float speed = 500;
     private GameObject focalPoint;
 
     public bool hasPowerup;
@@ -17,13 +17,18 @@ public class PlayerControllerX : MonoBehaviour {
     public int powerUpDuration = 5;
 
     // how hard to hit enemy without powerup
-    private float normalStrength = 10;
+    private readonly float normalStrength = 10;
     // how hard to hit enemy with powerup
-    private float powerupStrength = 25;
+    private readonly float powerupStrength = 25;
+
+    private GameObject smokeParticle;
+    private bool allowBoost = true;
 
     void Start() {
         playerRb = GetComponent<Rigidbody>();
         focalPoint = GameObject.Find("Focal Point");
+        smokeParticle = GameObject.Find("/Player/Focal Point/Smoke_Particle");
+        smokeParticle.SetActive(false);
     }
 
     void Update() {
@@ -33,6 +38,19 @@ public class PlayerControllerX : MonoBehaviour {
 
         // Set powerup indicator position to beneath player
         powerupIndicator.transform.position = transform.position + new Vector3(0, -0.6f, 0);
+
+        if (Input.GetKeyDown(KeyCode.Space) && allowBoost) {
+            playerRb.AddForce(focalPoint.transform.forward * speed * 3, ForceMode.Impulse);
+            smokeParticle.SetActive(true);
+            allowBoost = false;
+            StartCoroutine(StopSmoke());
+        }
+    }
+
+    private IEnumerator StopSmoke() {
+        yield return new WaitForSeconds(3f);
+        smokeParticle.SetActive(false);
+        allowBoost = true;
     }
 
     // If Player collides with powerup, activate powerup

@@ -11,16 +11,18 @@ public class SpawnManagerX : MonoBehaviour {
     public GameObject enemyPrefab;
     public GameObject powerupPrefab;
 
-    private float spawnRangeX = 10;
+    private readonly float spawnRangeX = 10;
     // set min spawn Z
-    private float spawnZMin = 15;
+    private readonly float spawnZMin = 15;
     // set max spawn Z
-    private float spawnZMax = 25;
+    private readonly float spawnZMax = 25;
 
     public int enemyCount;
     public int waveCount = 1;
 
     public GameObject player;
+
+    public static float EXTRA_SPEED = 0;
 
     // Update is called once per frame
     void Update() {
@@ -53,6 +55,9 @@ public class SpawnManagerX : MonoBehaviour {
         }
 
         waveCount++;
+
+        // extra speed should just be the natural log of the current wave.
+        EXTRA_SPEED = Mathf.Log(waveCount);
 
         // put player back at start
         ResetPlayerPosition();
