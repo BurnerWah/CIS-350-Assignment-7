@@ -6,6 +6,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SpawnManagerX : MonoBehaviour {
     public GameObject enemyPrefab;
@@ -18,14 +19,21 @@ public class SpawnManagerX : MonoBehaviour {
     private readonly float spawnZMax = 25;
 
     public int enemyCount;
+    // NOTE - this actually stores the next wave count, not the current one.
     public int waveCount = 1;
 
     public GameObject player;
 
     public static float EXTRA_SPEED = 0;
+    private int enemyGoals = 0;
+    private bool hasGameEnded = false;
+    public Text endText;
+    public Text waveText;
 
     // Update is called once per frame
     void Update() {
+        if (hasGameEnded)
+            return;
         enemyCount = GameObject.FindGameObjectsWithTag("Enemy").Length;
         if (enemyCount == 0) {
             SpawnEnemyWave(waveCount);
@@ -41,6 +49,11 @@ public class SpawnManagerX : MonoBehaviour {
 
 
     void SpawnEnemyWave(int enemiesToSpawn) {
+        if (waveCount >= 10) {
+            EndGame(true);
+            return;
+        }
+
         // make powerups spawn at player end
         Vector3 powerupSpawnOffset = new Vector3(0, 0, -15);
 
@@ -54,10 +67,12 @@ public class SpawnManagerX : MonoBehaviour {
             Instantiate(enemyPrefab, GenerateSpawnPosition(), enemyPrefab.transform.rotation);
         }
 
-        waveCount++;
-
         // extra speed should just be the natural log of the current wave.
         EXTRA_SPEED = Mathf.Log(waveCount);
+
+        enemyGoals = 0;
+
+        waveText.text = $"Wave: {waveCount++}";
 
         // put player back at start
         ResetPlayerPosition();
@@ -68,5 +83,21 @@ public class SpawnManagerX : MonoBehaviour {
         player.transform.position = new Vector3(0, 1, -7);
         player.GetComponent<Rigidbody>().velocity = Vector3.zero;
         player.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
+    }
+
+    void EndGame(bool didWin) {
+        hasGameEnded = true;
+        endText.text = $"You {(didWin ? "win" : "lose")}!\nPress R to restart";
+        endText.gameObject.SetActive(true);
+    }
+
+    private void HandleEnemyGoal() {
+        if (++enemyGoals >= waveCount - 1) {
+            EndGame(false);
+        }
+    }
+
+    public static void EnemyGoal() {
+        FindObjectOfType<SpawnManagerX>().HandleEnemyGoal();
     }
 }

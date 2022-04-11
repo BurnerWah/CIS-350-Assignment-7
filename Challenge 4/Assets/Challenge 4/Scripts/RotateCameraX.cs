@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class RotateCameraX : MonoBehaviour {
-    private float speed = 200;
+    private readonly float speed = 200;
     public GameObject player;
 
     // Update is called once per frame

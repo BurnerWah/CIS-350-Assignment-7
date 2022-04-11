@@ -22,7 +22,7 @@ public class PlayerControllerX : MonoBehaviour {
     private readonly float powerupStrength = 25;
 
     private GameObject smokeParticle;
-    private bool allowBoost = true;
+    private bool allowBoost = false;
 
     void Start() {
         playerRb = GetComponent<Rigidbody>();
@@ -40,7 +40,7 @@ public class PlayerControllerX : MonoBehaviour {
         powerupIndicator.transform.position = transform.position + new Vector3(0, -0.6f, 0);
 
         if (Input.GetKeyDown(KeyCode.Space) && allowBoost) {
-            playerRb.AddForce(focalPoint.transform.forward * speed * 3, ForceMode.Impulse);
+            playerRb.AddForce(focalPoint.transform.forward * speed, ForceMode.Impulse);
             smokeParticle.SetActive(true);
             allowBoost = false;
             StartCoroutine(StopSmoke());
@@ -76,13 +76,12 @@ public class PlayerControllerX : MonoBehaviour {
             Rigidbody enemyRigidbody = other.gameObject.GetComponent<Rigidbody>();
             Vector3 awayFromPlayer = other.gameObject.transform.position - transform.position;
 
-            if (hasPowerup) {
-                // if have powerup hit enemy with powerup force
-                enemyRigidbody.AddForce(awayFromPlayer * powerupStrength, ForceMode.Impulse);
-            } else {
-                // if no powerup, hit enemy with normal strength
-                enemyRigidbody.AddForce(awayFromPlayer * normalStrength, ForceMode.Impulse);
-            }
+            enemyRigidbody.AddForce(awayFromPlayer * (hasPowerup ? powerupStrength : normalStrength), ForceMode.Impulse);
         }
+    }
+
+    public IEnumerator FixIntroBoost() {
+        yield return new WaitForSeconds(1f);
+        allowBoost = true;
     }
 }
